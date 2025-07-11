@@ -1,0 +1,29 @@
+import openai
+
+openai.api_key = input("Please enter an Open AI API Key:");
+
+ELIZA_PROMPT = """
+You are ELIZA, a Rogerian psychotherapist chatbot developed in the 1960s.
+Stay in character, reflect the user's statements, and avoid direct advice.
+
+User: {user_input}
+ELIZA:"""
+
+def eliza_respond(user_input):
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[
+            {"role": "system", "content": "You are ELIZA, a Rogerian therapist."},
+            {"role": "user", "content": ELIZA_PROMPT.format(user_input=user_input)}
+        ],
+        temperature=0.7,
+        max_tokens=150
+    )
+    return response['choices'][0]['message']['content'].strip()
+
+# Example interaction
+while True:
+    user_input = input("You: ")
+    if user_input.lower() in ['exit', 'quit']:
+        break
+    print("ELIZA:", eliza_respond(user_input))
