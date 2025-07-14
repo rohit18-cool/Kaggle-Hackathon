@@ -1,7 +1,14 @@
 #!/usr/bin/env python3
 """
-Aliza Support Bot
-A specialized customer support chatbot for handling support queries and FAQs
+Aliza Support Bot - Specialized Customer Support Chatbot
+A sophisticated customer service AI designed to handle support queries, FAQs, and ticket management.
+
+This implementation provides a modern customer support experience with:
+- Intent classification for different support categories
+- FAQ matching and response generation
+- Support ticket creation and tracking
+- Escalation logic for complex issues
+- Conversation history tracking
 """
 
 import re
@@ -11,15 +18,24 @@ import datetime
 from typing import Dict, List, Optional
 
 class ElizaSupportBot:
+    """
+    Advanced customer support chatbot with domain-specific knowledge
+    
+    This class implements a specialized support bot that can handle various
+    customer service scenarios including account issues, billing problems,
+    technical support, and product inquiries.
+    """
+    
     def __init__(self):
-        """Initialize Aliza Support Bot with support-specific knowledge"""
+        """Initialize Aliza Support Bot with comprehensive support knowledge base"""
         self.name = "Aliza"
         self.user_name = "Customer"
         self.conversation_history = []
         self.support_tickets = {}
         self.ticket_counter = 1000
         
-        # Support categories and responses
+        # Comprehensive support knowledge base organized by category
+        # Each category contains keywords, responses, and FAQ mappings
         self.support_knowledge = {
             "account": {
                 "keywords": ["account", "login", "password", "sign up", "register", "profile"],
@@ -75,7 +91,7 @@ class ElizaSupportBot:
             }
         }
         
-        # Greeting messages
+        # Personalized greeting messages for customer engagement
         self.greetings = [
             f"Hello! I'm {self.name}, your customer support assistant. How can I help you today?",
             f"Hi there! I'm {self.name}, here to assist you with any questions or issues you might have.",
@@ -83,7 +99,7 @@ class ElizaSupportBot:
             f"Good day! I'm {self.name}, ready to provide you with excellent customer support. How may I assist you?"
         ]
         
-        # Escalation responses
+        # Professional escalation responses for complex issues
         self.escalation_responses = [
             "I understand this is important. Let me connect you with a human specialist who can better assist you.",
             "This requires specialized attention. I'll transfer you to our expert team right away.",
@@ -94,7 +110,12 @@ class ElizaSupportBot:
         print(f"🤖 {self.name} Support Bot initialized and ready to help!")
     
     def get_user_name(self):
-        """Get and store the user's name"""
+        """
+        Collect and store customer name for personalized service
+        
+        Returns:
+            str: Personalized greeting message with customer name
+        """
         response = input(f"{self.name}: What's your name? ")
         if response.strip():
             self.user_name = response.strip()
@@ -102,7 +123,18 @@ class ElizaSupportBot:
         return "How can I help you today?"
     
     def classify_intent(self, user_input: str) -> str:
-        """Classify user intent based on keywords"""
+        """
+        Classify user intent based on keyword matching
+        
+        Analyzes user input against predefined keywords to determine
+        the most appropriate support category for response generation.
+        
+        Args:
+            user_input (str): Customer's message to analyze
+            
+        Returns:
+            str: Identified support category or 'general' if no match
+        """
         user_input_lower = user_input.lower()
         
         for category, data in self.support_knowledge.items():
@@ -113,7 +145,16 @@ class ElizaSupportBot:
         return "general"
     
     def get_faq_response(self, user_input: str, category: str) -> Optional[str]:
-        """Check if user input matches any FAQ and return appropriate response"""
+        """
+        Match user input against FAQ database for instant answers
+        
+        Args:
+            user_input (str): Customer's question or statement
+            category (str): Support category to search within
+            
+        Returns:
+            Optional[str]: FAQ response if match found, None otherwise
+        """
         user_input_lower = user_input.lower()
         
         if category in self.support_knowledge:
@@ -125,10 +166,19 @@ class ElizaSupportBot:
         return None
     
     def create_support_ticket(self, issue_description: str) -> str:
-        """Create a support ticket for the user"""
+        """
+        Generate support ticket for complex issues requiring human intervention
+        
+        Args:
+            issue_description (str): Customer's description of the problem
+            
+        Returns:
+            str: Confirmation message with ticket ID
+        """
         self.ticket_counter += 1
         ticket_id = f"TICKET-{self.ticket_counter}"
         
+        # Store ticket information with metadata
         self.support_tickets[ticket_id] = {
             "user_name": self.user_name,
             "issue": issue_description,
@@ -139,7 +189,18 @@ class ElizaSupportBot:
         return f"I've created a support ticket for you: {ticket_id}. Our team will review your issue and get back to you within 24 hours."
     
     def should_escalate(self, user_input: str) -> bool:
-        """Determine if the issue should be escalated to human support"""
+        """
+        Determine if customer issue requires human intervention
+        
+        Analyzes user input for urgency indicators and emotional cues
+        that suggest the need for human support escalation.
+        
+        Args:
+            user_input (str): Customer's message to evaluate
+            
+        Returns:
+            bool: True if escalation is recommended, False otherwise
+        """
         escalation_keywords = [
             "urgent", "emergency", "critical", "broken", "not working", 
             "frustrated", "angry", "complaint", "escalate", "manager",
@@ -150,40 +211,56 @@ class ElizaSupportBot:
         return any(keyword in user_input_lower for keyword in escalation_keywords)
     
     def get_response(self, user_input: str) -> str:
-        """Generate appropriate response based on user input"""
-        # Store conversation
+        """
+        Generate contextual response based on customer input and conversation state
+        
+        Implements a multi-stage response generation system:
+        1. Check for system commands (quit, help, ticket status)
+        2. Evaluate escalation needs
+        3. Classify customer intent
+        4. Match against FAQ database
+        5. Generate category-specific responses
+        6. Provide general fallback responses
+        
+        Args:
+            user_input (str): Customer's message to process
+            
+        Returns:
+            str: Appropriate response based on analysis
+        """
+        # Maintain conversation history for context and analytics
         self.conversation_history.append({"user": user_input, "timestamp": datetime.datetime.now()})
         
-        # Check for exit commands
+        # Handle system commands and exit scenarios
         if user_input.lower() in ['quit', 'exit', 'bye', 'goodbye']:
             return f"Thank you for contacting {self.name} Support! Have a great day, {self.user_name}!"
         
-        # Check for help command
+        # Provide help information and available commands
         if user_input.lower() in ['help', 'commands', 'what can you do']:
             return self.get_help_message()
         
-        # Check for ticket status
+        # Check for ticket status inquiries
         if "ticket" in user_input.lower() and any(char.isdigit() for char in user_input):
             return self.get_ticket_status(user_input)
         
-        # Check for escalation
+        # Evaluate escalation requirements
         if self.should_escalate(user_input):
             return random.choice(self.escalation_responses) + " Please hold while I connect you..."
         
-        # Classify intent
+        # Classify customer intent for targeted responses
         intent = self.classify_intent(user_input)
         
-        # Check for FAQ match
+        # Attempt FAQ matching for instant answers
         faq_response = self.get_faq_response(user_input, intent)
         if faq_response:
             return faq_response
         
-        # Get category-specific response
+        # Generate category-specific responses
         if intent in self.support_knowledge:
             responses = self.support_knowledge[intent]["responses"]
             return random.choice(responses)
         
-        # General response
+        # Provide general supportive responses for unmatched queries
         general_responses = [
             "I understand you need help. Could you please provide more details about your issue?",
             "I'm here to help! Can you tell me more about what you're experiencing?",
@@ -194,7 +271,12 @@ class ElizaSupportBot:
         return random.choice(general_responses)
     
     def get_help_message(self) -> str:
-        """Return help information"""
+        """
+        Generate comprehensive help information and available commands
+        
+        Returns:
+            str: Formatted help message with support categories and commands
+        """
         return f"""
 I'm {self.name}, your customer support assistant! Here's what I can help you with:
 
@@ -219,8 +301,19 @@ How can I assist you today, {self.user_name}?
 """
     
     def get_ticket_status(self, user_input: str) -> str:
-        """Get status of a support ticket"""
-        # Extract ticket number from input
+        """
+        Retrieve and display support ticket status information
+        
+        Extracts ticket ID from user input and returns current status
+        with creation date for customer reference.
+        
+        Args:
+            user_input (str): Customer's ticket inquiry
+            
+        Returns:
+            str: Ticket status information or error message
+        """
+        # Extract ticket number using regex pattern matching
         ticket_match = re.search(r'TICKET-(\d+)', user_input.upper())
         if ticket_match:
             ticket_id = f"TICKET-{ticket_match.group(1)}"
@@ -232,10 +325,19 @@ How can I assist you today, {self.user_name}?
         return "Please provide a valid ticket number (e.g., TICKET-1001)"
     
     def chat_loop(self):
-        """Main chat loop for Aliza Support Bot"""
+        """
+        Main conversation loop providing interactive customer support
+        
+        Implements the core support bot workflow:
+        1. Initialize with personalized greeting
+        2. Collect customer information
+        3. Process support requests through response generation
+        4. Offer ticket creation for complex issues
+        5. Handle graceful exit scenarios
+        """
         print(f"\n{self.name}: {random.choice(self.greetings)}")
         
-        # Get user name if not set
+        # Collect customer name for personalized service
         if self.user_name == "Customer":
             name_response = self.get_user_name()
             print(f"{self.name}: {name_response}")
@@ -246,14 +348,15 @@ How can I assist you today, {self.user_name}?
             try:
                 user_input = input(f"{self.user_name}: ").strip()
                 
+                # Skip empty input to maintain conversation flow
                 if not user_input:
                     continue
                 
-                # Get response
+                # Generate and display contextual response
                 response = self.get_response(user_input)
                 print(f"{self.name}: {response}")
                 
-                # Offer to create ticket for complex issues
+                # Proactively offer ticket creation for complex issues
                 if len(self.conversation_history) > 3 and "ticket" not in user_input.lower():
                     print(f"{self.name}: Would you like me to create a support ticket for this issue? (yes/no)")
                     ticket_response = input(f"{self.user_name}: ").strip().lower()
@@ -268,11 +371,16 @@ How can I assist you today, {self.user_name}?
                 print(f"{self.name}: I apologize, but I encountered an error. Please try again or contact human support.")
 
 def main():
-    """Main function to run Aliza Support Bot"""
+    """
+    Main execution function for Aliza Support Bot
+    
+    Initializes the support bot and launches the interactive
+    customer service interface.
+    """
     print("🚀 Starting Aliza Support Bot...")
     
-    # Create and start the bot
-    aliza = AlizaSupportBot()
+    # Create and launch support bot instance
+    aliza = ElizaSupportBot()
     aliza.chat_loop()
 
 if __name__ == "__main__":

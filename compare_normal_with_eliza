@@ -1,9 +1,29 @@
+#!/usr/bin/env python3
+"""
+ELIZA vs Regular AI Response Comparison Tool
+A benchmarking utility to compare classic ELIZA therapeutic responses with modern AI responses.
+
+This tool demonstrates the difference between Rogerian therapeutic techniques
+(ELIZA-style reflection and questioning) and direct, informative AI responses.
+"""
+
 import openai
 import time
 
+# Initialize OpenAI API with user-provided key for GPT-4 access
 openai.api_key = input("Please enter an Open AI API Key: ");
 
-def get_response (prompt, role_desc="You are a helpful assistant."):
+def get_response(prompt, role_desc="You are a helpful assistant."):
+    """
+    Generate AI response using OpenAI's GPT-4 model with performance timing
+    
+    Args:
+        prompt (str): User input to process
+        role_desc (str): System role description to define AI personality
+        
+    Returns:
+        tuple: (response_text, elapsed_time) - AI response and processing time
+    """
     start = time.time()
     response = openai.ChatCompletion.create(
         model="gpt-4",
@@ -18,17 +38,30 @@ def get_response (prompt, role_desc="You are a helpful assistant."):
     elapsed = end - start
     return response['choices'][0]['message']['content'].strip(), elapsed
 
-def eliza_vs_regular (user_input):
+def eliza_vs_regular(user_input):
+    """
+    Compare ELIZA-style therapeutic responses with regular AI responses
+    
+    This function demonstrates the fundamental differences between:
+    - ELIZA: Rogerian therapy approach with reflection, open-ended questions, and emotional focus
+    - Regular AI: Direct, informative, and solution-oriented responses
+    
+    Args:
+        user_input (str): User prompt to test both response styles
+    """
+    # Define ELIZA personality as Rogerian therapist
     eliza_role = "You are ELIZA, a Rogerian therapist. Reflect the user's statements, ask open-ended questions, avoid giving advice, and stay in character."
+    
+    # Define standard helpful AI personality
     normal_role = "You are a helpful and intelligent assistant."
 
-    # ELIZA response
+    # Generate ELIZA-style therapeutic response
     eliza_response, eliza_time = get_response(user_input, role_desc=eliza_role)
 
-    # regular
+    # Generate standard AI response
     regular_response, regular_time = get_response(user_input, role_desc=normal_role)
 
-    # output
+    # Display comparative analysis with timing information
     print(f"\nUser Input: {user_input}\n")
     print(f"ELIZA Response ({eliza_time:.2f}s):\n{eliza_response}\n")
     print(f"Regular Response ({regular_time:.2f}s):\n{regular_response}\n")
